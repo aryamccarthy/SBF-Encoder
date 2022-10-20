@@ -5,6 +5,11 @@ from torch import Tensor
 from einops import rearrange, repeat
 from einops.layers.torch import Rearrange, Reduce
 
+def count_trainable_parameters(model: nn.Module) -> int:
+    """Calculates number of trainable parameters in the model."""
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
+
+
 class PatchEmbedding(nn.Module):
     def __init__(self, in_channels: int = 3, patch_size: int = 8, emb_size: int = 768, img_size: int = 224):
         self.patch_size = patch_size

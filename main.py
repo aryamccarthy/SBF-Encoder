@@ -6,7 +6,7 @@ import gc
 import time
 import torchvision.transforms as transforms
 
-from SBF_arch import ViT, BViTThree
+from SBF_arch import count_trainable_parameters, ViT, BViTThree
 
 
 def test(dataloader, model, loss_fn, device):
@@ -138,6 +138,7 @@ def main(num):
         optimizerM3512 = torch.optim.AdamW(m3512.parameters(), lr=learningrate)
 
         print(num)
+        print(f"Number of parameters: {count_trainable_parameters(locals()[f'm{num}'])}")
         run(trainset, testset, locals()[f"m{num}"], locals()[f"optimizerM{num}"], device, epochs, locals()[f"l{num}"],
             i, num)
 
