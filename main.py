@@ -1,12 +1,12 @@
-import torch
-from torch import nn
-from torch.utils.data import DataLoader
-from torchvision import datasets
 import gc
 import time
-import torchvision.transforms as transforms
 
-from SBF_arch import ViT, BViTThree
+import torch
+import torchvision.transforms as transforms
+from torch import nn
+from torchvision import datasets
+
+from SBF_arch import BViTThree, ViT
 
 
 def test(dataloader, model, loss_fn, device):
@@ -55,7 +55,12 @@ def train(trainloader, testloader, model, loss_fn, optimizer, device, num):
             modelTestHistory.append(testLoss)
             model.train()
 
-            print(f"Model {num} \n test loss: {testLoss:>7f} loss: {loss:>7f} [{current:>5d}/{size:>5d}]")
+            print(
+                (
+                    f"Model {num} \n test loss: {testLoss:>7f}"
+                    f" loss: {loss:>7f} [{current:>5d}/{size:>5d}]"
+                )
+            )
             timeNow = time.time_ns()
     return modelTrainHistory, modelTestHistory
 
@@ -63,15 +68,19 @@ def train(trainloader, testloader, model, loss_fn, optimizer, device, num):
 def run(trainset, testset, model, optimizer, device, epochs, loss_fn, iteration, num):
     trainH, testH = [], []
     for t in range(epochs):
-        trainloader = torch.utils.data.DataLoader(trainset, batch_size=10, num_workers=1)
+        trainloader = torch.utils.data.DataLoader(
+            trainset, batch_size=10, num_workers=1
+        )
         testloader = torch.utils.data.DataLoader(testset, batch_size=10, num_workers=1)
         gc.collect()
         print(f"Epoch {t + 1}\n-------------------------------")
-        trainT, testT = train(trainloader, testloader, model, loss_fn, optimizer, device, num)
+        trainT, testT = train(
+            trainloader, testloader, model, loss_fn, optimizer, device, num
+        )
         trainH = trainH + trainT
         testH = testH + testT
 
-    with open(f'modelVIT{num}TestHist{iteration}.txt', 'w') as fp:
+    with open(f"modelVIT{num}TestHist{iteration}.txt", "w") as fp:
         for item in testH:
             # write each item on a new line
             fp.write("%s\n" % item)
@@ -85,28 +94,34 @@ def main(num):
 
     transform = transforms.ToTensor()
 
-    trainset = datasets.CIFAR10(root='./data', train=True,
-                                download=True, transform=transform)
-    testset = datasets.CIFAR10(root='./data', train=False,
-                               download=True, transform=transform)
+    trainset = datasets.CIFAR10(
+        root="./data", train=True, download=True, transform=transform
+    )
+    testset = datasets.CIFAR10(
+        root="./data", train=False, download=True, transform=transform
+    )
 
     for i in range(5):
         print(f"-------starting {i + 1}th iteration!-------")
-        ms512 = ViT(in_channels=3,
-                    patch_size=8,
-                    emb_size=512,
-                    img_size=32,
-                    depth=6,
-                    n_classes=10).to(device)
+        ms512 = ViT(
+            in_channels=3,
+            patch_size=8,
+            emb_size=512,
+            img_size=32,
+            depth=6,
+            n_classes=10,
+        ).to(device)
         ls512 = nn.CrossEntropyLoss()
         optimizerMs512 = torch.optim.AdamW(ms512.parameters(), lr=learningrate)
 
-        m0512 = ViT(in_channels=3,
-                    patch_size=8,
-                    emb_size=512,
-                    img_size=32,
-                    depth=12,
-                    n_classes=10).to(device)
+        m0512 = ViT(
+            in_channels=3,
+            patch_size=8,
+            emb_size=512,
+            img_size=32,
+            depth=12,
+            n_classes=10,
+        ).to(device)
         l0512 = nn.CrossEntropyLoss()
         optimizerM0512 = torch.optim.AdamW(m0512.parameters(), lr=learningrate)
 
@@ -128,20 +143,31 @@ def main(num):
         #         l2 = nn.CrossEntropyLoss()
         #         optimizerM2 = torch.optim.AdamW(m2.parameters(), lr=learningrate)
 
-        m3512 = BViTThree(in_channels=3,
-                          patch_size=8,
-                          emb_size=512,
-                          img_size=32,
-                          depth=12,
-                          n_classes=10).to(device)
+        m3512 = BViTThree(
+            in_channels=3,
+            patch_size=8,
+            emb_size=512,
+            img_size=32,
+            depth=12,
+            n_classes=10,
+        ).to(device)
         l3512 = nn.CrossEntropyLoss()
         optimizerM3512 = torch.optim.AdamW(m3512.parameters(), lr=learningrate)
 
         print(num)
-        run(trainset, testset, locals()[f"m{num}"], locals()[f"optimizerM{num}"], device, epochs, locals()[f"l{num}"],
-            i, num)
+        run(
+            trainset,
+            testset,
+            locals()[f"m{num}"],
+            locals()[f"optimizerM{num}"],
+            device,
+            epochs,
+            locals()[f"l{num}"],
+            i,
+            num,
+        )
 
 
-if __name__ == '__main__':
-    for i in ['s512']:
+if __name__ == "__main__":
+    for i in ["s512"]:
         main(i)
