@@ -125,24 +125,6 @@ def main(num):
         l0512 = nn.CrossEntropyLoss()
         optimizerM0512 = torch.optim.AdamW(m0512.parameters(), lr=learningrate)
 
-        #         m1 = BViTOne(in_channels = 3,
-        #                 patch_size = 8,
-        #                 emb_size = 128,
-        #                 img_size = 32,
-        #                 depth = 12,
-        #                 n_classes = 10).to(device)
-        #         l1 = nn.CrossEntropyLoss()
-        #         optimizerM1 = torch.optim.AdamW(m1.parameters(), lr=learningrate)
-
-        #         m2 = BViTTwo(in_channels = 3,
-        #                 patch_size = 8,
-        #                 emb_size = 128,
-        #                 img_size = 32,
-        #                 depth = 12,
-        #                 n_classes = 10).to(device)
-        #         l2 = nn.CrossEntropyLoss()
-        #         optimizerM2 = torch.optim.AdamW(m2.parameters(), lr=learningrate)
-
         m3512 = BViTThree(
             in_channels=3,
             patch_size=8,
